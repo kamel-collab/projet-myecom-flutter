@@ -18,7 +18,11 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4.0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+
       clipBehavior: Clip.antiAlias,
 
       child: InkWell(
@@ -30,25 +34,43 @@ class ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
+
             // Image et icône favoris
             Stack(
               children: [
+
                 AspectRatio(
                   aspectRatio: 1,
-                  child: Image.network(imageUrl, fit: BoxFit.cover),
+
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          size: 40,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  ),
                 ),
 
                 Positioned(
                   top: 8,
                   right: 8,
+
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.black45,
                       borderRadius: BorderRadius.circular(20),
                     ),
+
                     padding: const EdgeInsets.all(6.0),
 
-                    child: Icon(
+                    child: const Icon(
                       Icons.favorite_border,
                       color: Colors.white,
                       size: 20,
@@ -58,22 +80,26 @@ class ProductCard extends StatelessWidget {
               ],
             ),
 
-            // Nom et prix du produit
+            // Nom et prix
             Padding(
               padding: const EdgeInsets.all(10.0),
 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
+
                   Text(
                     name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   const SizedBox(height: 5),
 
                   Text(

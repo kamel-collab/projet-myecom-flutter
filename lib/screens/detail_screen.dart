@@ -9,8 +9,7 @@ class DetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
 
     // Récupération des informations envoyées
-    final product = ModalRoute.of(context)!.settings.arguments
-        as Map<String, dynamic>;
+    final product = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
     final int rating = product['rating'] as int? ?? 0;
 

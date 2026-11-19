@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../widgets/product_card.dart';
+import '../services/api_service.dart';
 import 'detail_screen.dart';
 
 class MainScreen extends StatelessWidget {
@@ -8,7 +10,6 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       // AppBar
       appBar: AppBar(
         title: const Text(
@@ -20,70 +21,77 @@ class MainScreen extends StatelessWidget {
         elevation: 4.0,
       ),
 
-      // Grille des produits
-      body: LayoutBuilder(
-        builder: (context, constraints) {
+      // Chargement des produits depuis l'API
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: fetchProductsFromApi(),
 
-          double cardWidth = 180.0;
-
-          int crossAxisCount =
-              (constraints.maxWidth / cardWidth).floor();
-
-          if (crossAxisCount < 2) {
-            crossAxisCount = 2;
+        builder: (context, snapshot) {
+          // 1. Chargement
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
           }
 
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
+          // 2. Erreur
+          if (snapshot.hasError) {
+            return Center(child: Text('Erreur : ${snapshot.error}'));
+          }
 
-            child: GridView.builder(
-              itemCount: 12,
+          // 3. Aucun produit disponible
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Aucun produit disponible'));
+          }
 
-              gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                mainAxisSpacing: 8.0,
-                crossAxisSpacing: 8.0,
-                childAspectRatio: 0.65,
-              ),
+          // 4. Données disponibles
+          final products = snapshot.data!;
 
-              itemBuilder: (context, index) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              double cardWidth = 180.0;
 
-                // Informations du produit
-                String name =
-                    'Futuristic T-Shirt #${index + 1}';
+              int crossAxisCount = (constraints.maxWidth / cardWidth).floor();
 
-                String price =
-                    '${(index + 1) * 10} \$';
+              if (crossAxisCount < 2) {
+                crossAxisCount = 2;
+              }
 
-                String imageUrl =
-               'https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_t.png';
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
 
-                return ProductCard(
-                  name: name,
-                  price: price,
-                  imageUrl: imageUrl,
+                child: GridView.builder(
+                  // Nombre de produits retournés par l'API
+                  itemCount: products.length,
 
-                  // Navigation vers DetailScreen
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      DetailScreen.routeName,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: 8.0,
+                    crossAxisSpacing: 8.0,
+                    childAspectRatio: 0.65,
+                  ),
 
+                  itemBuilder: (context, index) {
+                    // Récupérer le produit actuel
+                    final product = products[index];
 
+                    return ProductCard(
+                      name: product['name'],
+                      price: product['price'],
+                      imageUrl: product['imageUrl'],
 
+                      // Navigation vers DetailScreen
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          DetailScreen.routeName,
 
-                      arguments: {
-                        'name': name,
-                        'price': price,
-                        'imageUrl': imageUrl,
-                        'rating': 4,
+                          // Envoyer toutes les données du produit
+                          arguments: product,
+                        );
                       },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -101,18 +109,9 @@ class MainScreen extends StatelessWidget {
       unselectedItemColor: Colors.white70,
 
       items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.shopping_cart),
-          label: 'Cart',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],
     );
   }
