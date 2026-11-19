@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/product_card.dart';
+import 'detail_screen.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -10,7 +11,7 @@ class MainScreen extends StatelessWidget {
 
       // AppBar
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'My E-Commerce',
           style: TextStyle(color: Colors.white),
         ),
@@ -19,18 +20,15 @@ class MainScreen extends StatelessWidget {
         elevation: 4.0,
       ),
 
-      // Grille responsive des produits
+      // Grille des produits
       body: LayoutBuilder(
         builder: (context, constraints) {
 
-          // Largeur approximative souhaitée pour chaque carte
           double cardWidth = 180.0;
 
-          // Calcul dynamique du nombre de colonnes
           int crossAxisCount =
               (constraints.maxWidth / cardWidth).floor();
 
-          // On s'assure d'avoir au moins 2 colonnes
           if (crossAxisCount < 2) {
             crossAxisCount = 2;
           }
@@ -46,19 +44,42 @@ class MainScreen extends StatelessWidget {
                 crossAxisCount: crossAxisCount,
                 mainAxisSpacing: 8.0,
                 crossAxisSpacing: 8.0,
-                childAspectRatio: 0.9,
+                childAspectRatio: 0.65,
               ),
 
               itemBuilder: (context, index) {
+
+                // Informations du produit
+                String name =
+                    'Futuristic T-Shirt #${index + 1}';
+
+                String price =
+                    '${(index + 1) * 10} \$';
+
+                String imageUrl =
+               'https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_t.png';
+
                 return ProductCard(
-                  name: 'Futuristic T-Shirt #${index + 1}',
-                  price: '${(index + 1) * 10} \$',
+                  name: name,
+                  price: price,
+                  imageUrl: imageUrl,
 
-                  imageUrl:
-                      'https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg',
-
+                  // Navigation vers DetailScreen
                   onTap: () {
-                    print('Produit ${index + 1} cliqué !');
+                    Navigator.pushNamed(
+                      context,
+                      DetailScreen.routeName,
+
+
+
+
+                      arguments: {
+                        'name': name,
+                        'price': price,
+                        'imageUrl': imageUrl,
+                        'rating': 4,
+                      },
+                    );
                   },
                 );
               },
